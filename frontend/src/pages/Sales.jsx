@@ -27,6 +27,7 @@ export default function SalesPage() {
     total_amount: 0, tax_amount: 0, discount_amount: 0, items: [] 
   });
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => { load(); loadCustomers(); loadProducts(); }, []);
 
@@ -64,11 +65,12 @@ export default function SalesPage() {
       total_amount: 0, tax_amount: 0, discount_amount: 0, 
       items: [{ product_id: '', quantity: 1, unit_price: '' }] 
     });
+    setError('');
     setEditing(null);
     setModal(true);
   };
 
-  const openEdit = (row) => { setForm(row); setEditing(row.sales_id); setModal(true); };
+  const openEdit = (row) => { setForm(row); setError(''); setEditing(row.sales_id); setModal(true); };
 
   const handleDelete = async (row) => {
     if (!confirm('Delete this order?')) return;
@@ -77,10 +79,14 @@ export default function SalesPage() {
   };
 
   const handleSubmit = async () => {
-    const url = editing ? `/api/sales/${editing}` : '/api/sales';
-    await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
-    setModal(false);
-    load();
+    try {
+      const url = editing ? `/api/sales/${editing}` : '/api/sales';
+      await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
+      setModal(false);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -152,7 +158,7 @@ export default function SalesPage() {
       </Modal>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Order' : 'New Sales Order'} width="640px"
+      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Order' : 'New Sales Order'} width="640px" error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit}>{editing ? 'Update' : 'Create'}</button>

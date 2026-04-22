@@ -24,8 +24,10 @@ export default function DevicesPage() {
   const [products, setProducts] = useState([]);
   const [projects, setProjects] = useState([]);
   const [sales, setSales] = useState([]);
+  const [models, setModels] = useState([]);
   const [modal, setModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
+  const [error, setError] = useState('');
   const [viewData, setViewData] = useState(null);
   const [form, setForm] = useState({});
   const [editing, setEditing] = useState(null);
@@ -44,14 +46,16 @@ export default function DevicesPage() {
 
   const loadDropdowns = async () => {
     try {
-      const [c, m, p, s] = await Promise.all([
-        apiFetch('/api/customers'), apiFetch('/api/dispenser-models'),
+      const [c, m, p, s, dm] = await Promise.all([
+        apiFetch('/api/customers'), apiFetch('/api/products'),
         apiFetch('/api/projects'), apiFetch('/api/sales'),
+        apiFetch('/api/dispenser-models'),
       ]);
       if (c.ok) setCustomers(await c.json());
       if (m.ok) setProducts(await m.json());
       if (p.ok) setProjects(await p.json());
       if (s.ok) setSales(await s.json());
+      if (dm.ok) setModels(await dm.json());
     } catch (e) { console.error(e); }
   };
 
@@ -69,6 +73,7 @@ export default function DevicesPage() {
       iot_sim_no: '', imei_no: '', mac_address: '',
       installation_date: '', warranty_start: '', warranty_end: '',
     });
+    setError('');
     setEditing(null);
     setModal(true);
   };
@@ -80,6 +85,7 @@ export default function DevicesPage() {
       warranty_start: row.warranty_start ? row.warranty_start.split('T')[0] : '',
       warranty_end: row.warranty_end ? row.warranty_end.split('T')[0] : '',
     });
+    setError('');
     setEditing(row.device_id);
     setModal(true);
   };
@@ -91,10 +97,14 @@ export default function DevicesPage() {
   };
 
   const handleSubmit = async () => {
-    const url = editing ? `/api/devices/${editing}` : '/api/devices';
-    await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
-    setModal(false);
-    load();
+    try {
+      const url = editing ? `/api/devices/${editing}` : '/api/devices';
+      await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
+      setModal(false);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -147,7 +157,7 @@ export default function DevicesPage() {
       </Modal>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Device' : 'Register New Device'} width="700px"
+      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Device' : 'Register New Device'} width="700px" error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit}>{editing ? 'Update' : 'Register'}</button>
@@ -156,51 +166,58 @@ export default function DevicesPage() {
         <div className="form-grid">
           <div className="form-group">
             <label className="form-label">Serial Number *</label>
-            <input className="form-input" value={form.serial_number} onChange={e => onChange('serial_number', e.target.value)} required />
+            <input className="form-input" value={form.serial_number || ''} onChange={e => onChange('serial_number', e.target.value)} required />
           </div>
           <div className="form-group">
             <label className="form-label">Device UID *</label>
-            <input className="form-input" value={form.device_uid} onChange={e => onChange('device_uid', e.target.value)} required />
+            <input className="form-input" value={form.device_uid || ''} onChange={e => onChange('device_uid', e.target.value)} required />
           </div>
           <div className="form-group">
             <label className="form-label">Customer</label>
-            <select className="form-select" value={form.customer_id} onChange={e => onChange('customer_id', e.target.value)}>
+            <select className="form-select" value={form.customer_id || ''} onChange={e => onChange('customer_id', e.target.value)}>
               <option value="">Select Customer</option>
               {customers.map(c => <option key={c.customer_id} value={c.customer_id}>{c.customer_name}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label className="form-label">Product Assembly *</label>
-            <select className="form-select" value={form.dispenser_id} onChange={e => onChange('dispenser_id', e.target.value)} required>
+            <select className="form-select" value={form.dispenser_id || ''} onChange={e => onChange('dispenser_id', e.target.value)} required>
               <option value="">Select Assembly</option>
               {products.map(p => <option key={p.product_id} value={p.product_id}>{p.product_name} ({p.production_serial_no})</option>)}
             </select>
           </div>
           <div className="form-group">
+            <label className="form-label">Dispenser Model</label>
+            <select className="form-select" value={form.model_id || ''} onChange={e => onChange('model_id', e.target.value)}>
+              <option value="">Select Model</option>
+              {models.map(m => <option key={m.dispenser_model_id} value={m.dispenser_model_id}>{m.model_name}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
             <label className="form-label">Project</label>
-            <select className="form-select" value={form.project_id} onChange={e => onChange('project_id', e.target.value)}>
+            <select className="form-select" value={form.project_id || ''} onChange={e => onChange('project_id', e.target.value)}>
               <option value="">Select Project</option>
               {projects.map(p => <option key={p.project_id} value={p.project_id}>{p.project_name}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label className="form-label">Sales Order</label>
-            <select className="form-select" value={form.sale_id} onChange={e => onChange('sale_id', e.target.value)}>
+            <select className="form-select" value={form.sale_id || ''} onChange={e => onChange('sale_id', e.target.value)}>
               <option value="">Select Order</option>
               {sales.map(s => <option key={s.sales_id} value={s.sales_id}>{s.sales_id} — {s.po_number}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label className="form-label">IoT SIM No</label>
-            <input className="form-input" value={form.iot_sim_no} onChange={e => onChange('iot_sim_no', e.target.value)} />
+            <input className="form-input" value={form.iot_sim_no || ''} onChange={e => onChange('iot_sim_no', e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">IMEI No</label>
-            <input className="form-input" value={form.imei_no} onChange={e => onChange('imei_no', e.target.value)} />
+            <input className="form-input" value={form.imei_no || ''} onChange={e => onChange('imei_no', e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">MAC Address</label>
-            <input className="form-input" value={form.mac_address} onChange={e => onChange('mac_address', e.target.value)} />
+            <input className="form-input" value={form.mac_address || ''} onChange={e => onChange('mac_address', e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">Installation Date</label>

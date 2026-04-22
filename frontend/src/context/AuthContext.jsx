@@ -67,8 +67,19 @@ export function AuthProvider({ children }) {
       throw new Error('Session expired');
     }
 
-    if (res.status === 403) {
-      throw new Error('Permission denied');
+    if (!res.ok) {
+      let errorMessage = 'An error occurred';
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // Fallback if response is not JSON
+        errorMessage = `Error: ${res.statusText || res.status}`;
+      }
+      
+      const error = new Error(errorMessage);
+      error.status = res.status;
+      throw error;
     }
 
     return res;

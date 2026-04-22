@@ -60,6 +60,7 @@ export default function ProductsPage() {
   const [viewData, setViewData] = useState(null);
   const [form, setForm] = useState({});
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
   const [activeFormTab, setActiveFormTab] = useState('basic');
 
   useEffect(() => { 
@@ -116,6 +117,7 @@ export default function ProductsPage() {
 
   const openCreate = () => {
     setForm({ product_name: '', product_description: '', dispenser_model_id: '', configuration_id: '', production_serial_no: '', manufacturing_batch: '' });
+    setError('');
     setEditing(null);
     setActiveFormTab('basic');
     setModal(true);
@@ -123,6 +125,7 @@ export default function ProductsPage() {
 
   const openEdit = (row) => { 
     setForm(row); 
+    setError('');
     setEditing(row.product_id); 
     setActiveFormTab('basic');
     setModal(true); 
@@ -135,10 +138,14 @@ export default function ProductsPage() {
   };
 
   const handleSubmit = async () => {
-    const url = editing ? `/api/products/${editing}` : '/api/products';
-    await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
-    setModal(false);
-    load();
+    try {
+      const url = editing ? `/api/products/${editing}` : '/api/products';
+      await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
+      setModal(false);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -255,6 +262,7 @@ export default function ProductsPage() {
         onClose={() => setModal(false)} 
         title={editing ? 'Edit Product' : 'New Product Assembly'}
         width="850px"
+        error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit}>{editing ? 'Update' : 'Register Assembly'}</button>

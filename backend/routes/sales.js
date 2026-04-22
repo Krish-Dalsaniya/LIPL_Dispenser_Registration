@@ -36,10 +36,12 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
     if (order.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
 
     const items = await pool.query(
-      `SELECT si.*, p.product_name, dm.model_name, dm.dispenser_type, dm.fuel_type
+      `SELECT si.*,
+              COALESCE(si.product_id, si.dispenser_model_id) as effective_product_id,
+              p.product_name, dm.model_name, dm.dispenser_type, dm.fuel_type
        FROM sales_order_items si
-       JOIN product_master p ON si.product_id = p.product_id
-       LEFT JOIN dispenser_model_master dm ON p.dispenser_model_id = dm.dispenser_model_id
+       LEFT JOIN product_master p ON (si.product_id = p.product_id OR si.dispenser_model_id = p.product_id)
+       LEFT JOIN dispenser_model_master dm ON (p.dispenser_model_id = dm.dispenser_model_id OR si.dispenser_model_id = dm.dispenser_model_id)
        WHERE si.sales_id = $1`,
       [req.params.id]
     );

@@ -27,6 +27,7 @@ export default function CustomersPage() {
   const { apiFetch } = useAuth();
   const [data, setData] = useState([]);
   const [modal, setModal] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState(null);
 
@@ -39,8 +40,8 @@ export default function CustomersPage() {
     } catch (e) { console.error(e); }
   };
 
-  const openCreate = () => { setForm(emptyForm); setEditing(null); setModal(true); };
-  const openEdit = (row) => { setForm(row); setEditing(row.customer_id); setModal(true); };
+  const openCreate = () => { setForm(emptyForm); setError(''); setEditing(null); setModal(true); };
+  const openEdit = (row) => { setForm(row); setError(''); setEditing(row.customer_id); setModal(true); };
 
   const handleDelete = async (row) => {
     if (!confirm(`Deactivate customer "${row.customer_name}"?`)) return;
@@ -50,10 +51,14 @@ export default function CustomersPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = editing ? `/api/customers/${editing}` : '/api/customers';
-    await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
-    setModal(false);
-    load();
+    try {
+      const url = editing ? `/api/customers/${editing}` : '/api/customers';
+      await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
+      setModal(false);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -70,7 +75,7 @@ export default function CustomersPage() {
 
       <DataTable columns={columns} data={data} onEdit={openEdit} onDelete={handleDelete} />
 
-      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Customer' : 'New Customer'} width="640px"
+      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Customer' : 'New Customer'} width="640px" error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit}>{editing ? 'Update' : 'Create'}</button>

@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 
-export default function Modal({ isOpen, onClose, title, children, footer, width }) {
+export default function Modal({ isOpen, onClose, title, children, footer, width, error }) {
   if (!isOpen) return null;
 
   return (
@@ -12,7 +12,22 @@ export default function Modal({ isOpen, onClose, title, children, footer, width 
             <X size={18} />
           </button>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className="modal-body">
+          {error && (
+            <div style={{ 
+              backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+              border: '1px solid #ef4444', 
+              color: '#ef4444', 
+              padding: '10px', 
+              borderRadius: '6px', 
+              marginBottom: '16px',
+              fontSize: '0.85rem'
+            }}>
+              {error}
+            </div>
+          )}
+          {children}
+        </div>
         {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>

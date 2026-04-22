@@ -24,6 +24,7 @@ export default function ProjectsPage() {
   const [viewData, setViewData] = useState(null);
   const [form, setForm] = useState({ project_name: '', customer_id: '', project_type: '', status: 'active', start_date: '', end_date: '', description: '' });
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => { load(); loadCustomers(); }, []);
 
@@ -50,6 +51,7 @@ export default function ProjectsPage() {
 
   const openCreate = () => {
     setForm({ project_name: '', customer_id: '', project_type: '', status: 'active', start_date: '', end_date: '', description: '' });
+    setError('');
     setEditing(null);
     setModal(true);
   };
@@ -60,6 +62,7 @@ export default function ProjectsPage() {
       start_date: row.start_date ? row.start_date.split('T')[0] : '',
       end_date: row.end_date ? row.end_date.split('T')[0] : '',
     });
+    setError('');
     setEditing(row.project_id);
     setModal(true);
   };
@@ -71,10 +74,14 @@ export default function ProjectsPage() {
   };
 
   const handleSubmit = async () => {
-    const url = editing ? `/api/projects/${editing}` : '/api/projects';
-    await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
-    setModal(false);
-    load();
+    try {
+      const url = editing ? `/api/projects/${editing}` : '/api/projects';
+      await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
+      setModal(false);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -122,7 +129,7 @@ export default function ProjectsPage() {
       </Modal>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Project' : 'New Project'} width="640px"
+      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Project' : 'New Project'} width="640px" error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit}>{editing ? 'Update' : 'Create'}</button>

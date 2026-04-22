@@ -120,7 +120,7 @@ router.post('/', authorizeRoles('Admin', 'Engineer', 'Sales'), async (req, res, 
        pump_id || null, solenoid_valve_id || null, flowmeter_id || null, nozzle_id || null, filter_id || null, smps_id || null, relay_box_id || null,
        transformer_id || null, emi_emc_filter_id || null, printer_id || null, battery_id || null, speaker_id || null, tank_sensor_id || null,
        quality_sensor_id || null, amplifier_id || null, rccb_id || null, spd_id || null, back_panel_pcb_id || null, dc_meter_id || null,
-       pressure_sensor_id || null, production_serial_no, manufacturing_date_time || null, manufacturing_batch, req.user.user_id]
+       pressure_sensor_id || null, production_serial_no || null, manufacturing_date_time || null, manufacturing_batch, req.user.user_id]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -150,7 +150,7 @@ router.put('/:id', authorizeRoles('Admin', 'Engineer', 'Sales'), async (req, res
        pump_id || null, solenoid_valve_id || null, flowmeter_id || null, nozzle_id || null, filter_id || null, smps_id || null, relay_box_id || null,
        transformer_id || null, emi_emc_filter_id || null, printer_id || null, battery_id || null, speaker_id || null, tank_sensor_id || null,
        quality_sensor_id || null, amplifier_id || null, rccb_id || null, spd_id || null, back_panel_pcb_id || null, dc_meter_id || null,
-       pressure_sensor_id || null, production_serial_no, manufacturing_date_time || null, manufacturing_batch, req.params.id]
+       pressure_sensor_id || null, production_serial_no || null, manufacturing_date_time || null, manufacturing_batch, req.params.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
     res.json(result.rows[0]);

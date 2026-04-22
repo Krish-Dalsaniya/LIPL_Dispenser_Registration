@@ -30,6 +30,7 @@ export default function SupportTicketsPage() {
   
   const [form, setForm] = useState(emptyForm);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [error, setError] = useState('');
   
   // Chat state
   const [chatMessages, setChatMessages] = useState([]);
@@ -85,24 +86,32 @@ export default function SupportTicketsPage() {
     } catch (e) { console.error(e); }
   };
 
-  const openCreate = () => { setForm(emptyForm); setCreateModal(true); };
-  const openDetail = (row) => { setSelectedTicket(row); setDetailModal(true); };
+  const openCreate = () => { setForm(emptyForm); setError(''); setCreateModal(true); };
+  const openDetail = (row) => { setSelectedTicket(row); setError(''); setDetailModal(true); };
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    await apiFetch('/api/support-tickets', { method: 'POST', body: JSON.stringify(form) });
-    setCreateModal(false);
-    loadTickets();
+    try {
+      await apiFetch('/api/support-tickets', { method: 'POST', body: JSON.stringify(form) });
+      setCreateModal(false);
+      loadTickets();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const handleUpdateStatus = async (status) => {
     if(!selectedTicket) return;
-    await apiFetch(`/api/support-tickets/${selectedTicket.ticket_id}`, { 
-      method: 'PUT', 
-      body: JSON.stringify({ ...selectedTicket, status }) 
-    });
-    setDetailModal(false);
-    loadTickets();
+    try {
+      await apiFetch(`/api/support-tickets/${selectedTicket.ticket_id}`, { 
+        method: 'PUT', 
+        body: JSON.stringify({ ...selectedTicket, status }) 
+      });
+      setDetailModal(false);
+      loadTickets();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const handleSendMessage = async (e) => {
@@ -133,7 +142,12 @@ export default function SupportTicketsPage() {
       <DataTable columns={columns} data={data} onEdit={openDetail} editIcon={<MessagesSquare size={16} />} editLabel="View" />
 
       {/* CREATE MODAL */}
-      <Modal isOpen={createModal} onClose={() => setCreateModal(false)} title="Create Support Ticket" width="600px"
+      <Modal 
+        isOpen={createModal} 
+        onClose={() => setCreateModal(false)} 
+        title="Create Support Ticket" 
+        width="600px" 
+        error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setCreateModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleCreateSubmit}>Submit Ticket</button>
@@ -175,7 +189,13 @@ export default function SupportTicketsPage() {
       </Modal>
 
       {/* DETAIL AND CHAT MODAL */}
-      <Modal isOpen={detailModal} onClose={() => setDetailModal(false)} title={`Ticket: ${selectedTicket?.ticket_no}`} width="900px">
+      <Modal 
+        isOpen={detailModal} 
+        onClose={() => setDetailModal(false)} 
+        title={`Ticket: ${selectedTicket?.ticket_no}`} 
+        width="900px" 
+        error={error}
+      >
         {selectedTicket && (
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) 2fr', gap: '24px', height: '600px' }}>
             
@@ -185,7 +205,7 @@ export default function SupportTicketsPage() {
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '16px' }}>{selectedTicket.issue_description}</p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
-                <div><strong>Status:</strong> <span className={`badge \${selectedTicket.status === 'open' ? 'badge-primary' : (selectedTicket.status === 'resolved' ? 'badge-success' : 'badge-neutral')}`}>{selectedTicket.status}</span></div>
+                <div><strong>Status:</strong> <span className={`badge ${selectedTicket.status === 'open' ? 'badge-primary' : (selectedTicket.status === 'resolved' ? 'badge-success' : 'badge-neutral')}`}>{selectedTicket.status}</span></div>
                 <div><strong>Priority:</strong> <span className="badge badge-warning">{selectedTicket.priority}</span></div>
                 <div><strong>Customer:</strong> {selectedTicket.customer_name}</div>
                 <div><strong>Created By:</strong> {selectedTicket.created_by_name}</div>

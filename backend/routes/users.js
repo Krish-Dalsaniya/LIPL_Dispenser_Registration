@@ -4,13 +4,14 @@ const pool = require('../config/db');
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
 
 // Apply Role-based access control (RBAC) - Only Admin can manage users
+// Apply authentication to all user routes
 router.use(authenticateToken);
-router.use(authorizeRoles('Admin'));
+
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 
-// GET /api/users — List all users
-router.get('/', authenticateToken, async (req, res, next) => {
+// GET /api/users — List all users (Accessible to all authenticated users for assignment)
+router.get('/', async (req, res, next) => {
   try {
     const result = await pool.query(
       `SELECT u.user_id, u.username, u.first_name, u.last_name, u.email, u.mobile_no, 
@@ -27,7 +28,7 @@ router.get('/', authenticateToken, async (req, res, next) => {
 });
 
 // GET /api/users/:id
-router.get('/:id', authenticateToken, async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const result = await pool.query(
       `SELECT u.user_id, u.username, u.first_name, u.last_name, u.email, u.mobile_no,
@@ -46,7 +47,7 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
 });
 
 // POST /api/users
-router.post('/', authenticateToken, async (req, res, next) => {
+router.post('/', authorizeRoles('Admin'), async (req, res, next) => {
   try {
     const { username, password, first_name, last_name, email, mobile_no, role_id, department, designation } = req.body;
     const salt = await bcrypt.genSalt(10);
@@ -66,7 +67,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
 });
 
 // PUT /api/users/:id
-router.put('/:id', authenticateToken, async (req, res, next) => {
+router.put('/:id', authorizeRoles('Admin'), async (req, res, next) => {
   try {
     const { first_name, last_name, email, mobile_no, role_id, department, designation, is_active } = req.body;
     const result = await pool.query(
@@ -82,7 +83,7 @@ router.put('/:id', authenticateToken, async (req, res, next) => {
 });
 
 // DELETE /api/users/:id
-router.delete('/:id', authenticateToken, async (req, res, next) => {
+router.delete('/:id', authorizeRoles('Admin'), async (req, res, next) => {
   try {
     const result = await pool.query(
       'UPDATE user_master SET is_active = false WHERE user_id = $1 RETURNING user_id',

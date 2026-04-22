@@ -29,6 +29,7 @@ export default function DispenserModelsPage() {
   const { apiFetch } = useAuth();
   const [data, setData] = useState([]);
   const [modal, setModal] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState(null);
 
@@ -37,12 +38,12 @@ export default function DispenserModelsPage() {
   const load = async () => {
     try {
       const res = await apiFetch('/api/dispenser-models');
-      if (res.ok) setData(await res.json());
+      setData(await res.json());
     } catch(e) { console.error(e); }
   };
 
-  const openCreate = () => { setForm(emptyForm); setEditing(null); setModal(true); };
-  const openEdit = (row) => { setForm(row); setEditing(row.dispenser_model_id); setModal(true); };
+  const openCreate = () => { setForm(emptyForm); setError(''); setEditing(null); setModal(true); };
+  const openEdit = (row) => { setForm(row); setError(''); setEditing(row.dispenser_model_id); setModal(true); };
 
   const handleDelete = async (row) => {
     if (!confirm(`Delete model "${row.model_name}"?`)) return;
@@ -51,10 +52,14 @@ export default function DispenserModelsPage() {
   };
 
   const handleSubmit = async () => {
-    const url = editing ? `/api/dispenser-models/${editing}` : '/api/dispenser-models';
-    await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
-    setModal(false);
-    load();
+    try {
+      const url = editing ? `/api/dispenser-models/${editing}` : '/api/dispenser-models';
+      await apiFetch(url, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(form) });
+      setModal(false);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -71,7 +76,7 @@ export default function DispenserModelsPage() {
 
       <DataTable columns={columns} data={data} onEdit={openEdit} onDelete={handleDelete} />
 
-      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Model' : 'New Model'}
+      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Model' : 'New Model'} error={error}
         footer={<>
           <button className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit}>{editing ? 'Update' : 'Create'}</button>
@@ -80,11 +85,11 @@ export default function DispenserModelsPage() {
         <div className="form-grid">
           <div className="form-group full-width">
             <label className="form-label">Model Name *</label>
-            <input className="form-input" value={form.model_name} onChange={e => onChange('model_name', e.target.value)} required />
+            <input className="form-input" value={form.model_name || ''} onChange={e => onChange('model_name', e.target.value)} required />
           </div>
           <div className="form-group">
             <label className="form-label">Dispenser Type</label>
-            <select className="form-select" value={form.dispenser_type} onChange={e => onChange('dispenser_type', e.target.value)}>
+            <select className="form-select" value={form.dispenser_type || ''} onChange={e => onChange('dispenser_type', e.target.value)}>
               <option value="">Select Type</option>
               <option value="Single Nozzle">Single Nozzle</option>
               <option value="Dual Nozzle">Dual Nozzle</option>
@@ -93,7 +98,7 @@ export default function DispenserModelsPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Fuel Type</label>
-            <select className="form-select" value={form.fuel_type} onChange={e => onChange('fuel_type', e.target.value)}>
+            <select className="form-select" value={form.fuel_type || ''} onChange={e => onChange('fuel_type', e.target.value)}>
               <option value="">Select Fuel</option>
               <option value="Petrol">Petrol</option>
               <option value="Diesel">Diesel</option>
@@ -104,11 +109,11 @@ export default function DispenserModelsPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Nozzle Count</label>
-            <input className="form-input" type="number" min="1" value={form.nozzle_count} onChange={e => onChange('nozzle_count', parseInt(e.target.value))} />
+            <input className="form-input" type="number" min="1" value={form.nozzle_count || 1} onChange={e => onChange('nozzle_count', parseInt(e.target.value))} />
           </div>
           <div className="form-group">
             <label className="form-label">Connectivity</label>
-            <select className="form-select" value={form.connectivity_type} onChange={e => onChange('connectivity_type', e.target.value)}>
+            <select className="form-select" value={form.connectivity_type || ''} onChange={e => onChange('connectivity_type', e.target.value)}>
               <option value="">Select Connectivity</option>
               <option value="GSM">GSM</option>
               <option value="WiFi">WiFi</option>
@@ -118,7 +123,7 @@ export default function DispenserModelsPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Keyboard Format</label>
-            <select className="form-select" value={form.keyboard_format} onChange={e => onChange('keyboard_format', e.target.value)}>
+            <select className="form-select" value={form.keyboard_format || ''} onChange={e => onChange('keyboard_format', e.target.value)}>
               <option value="">Select Format</option>
               <option value="Numeric">Numeric</option>
               <option value="Alphanumeric">Alphanumeric</option>
@@ -126,7 +131,7 @@ export default function DispenserModelsPage() {
             </select>
           </div>
           <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '25px' }}>
-            <input type="checkbox" id="is_iot" checked={form.is_iot_enabled} onChange={e => onChange('is_iot_enabled', e.target.checked)} />
+            <input type="checkbox" id="is_iot" checked={form.is_iot_enabled || false} onChange={e => onChange('is_iot_enabled', e.target.checked)} />
             <label htmlFor="is_iot" className="form-label" style={{ marginBottom: 0 }}>IoT Enabled</label>
           </div>
         </div>
