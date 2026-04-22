@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Users, Building2, Cpu, Box, ShoppingCart,
   FolderKanban, Router, ChevronLeft, ChevronRight, Fuel, Settings2,
-  MapPin, LifeBuoy
+  MapPin, LifeBuoy, LogOut, Settings
 } from 'lucide-react';
 
 const ALL_ROLES = ['Admin', 'Engineer', 'Sales', 'Technician'];
@@ -71,13 +71,25 @@ export default function Sidebar({ collapsed, onToggle }) {
               to={item.path}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <Icon className="nav-icon" size={20} />
+              <Icon className="nav-icon" size={18} />
               <span className="nav-label">{item.label}</span>
             </NavLink>
           );
         })}
       </nav>
-
+      <div className="sidebar-footer">
+        <div className="nav-item">
+          <Settings className="nav-icon" size={18} />
+          <span className="nav-label">Settings</span>
+        </div>
+        <div className="nav-item logout" onClick={() => {
+          localStorage.removeItem('token');
+          window.location.reload();
+        }}>
+          <LogOut className="nav-icon" size={18} />
+          <span className="nav-label">Logout</span>
+        </div>
+      </div>
     </aside>
   );
 }

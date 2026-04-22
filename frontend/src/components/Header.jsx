@@ -1,4 +1,4 @@
-import { Search, Bell, LogOut, Sun, Moon, Menu } from 'lucide-react';
+import { Search, Bell, LogOut, Sun, Moon, Menu, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -23,6 +23,7 @@ export default function Header({ collapsed, onToggle, title }) {
         <div className="header-search">
           <Search className="search-icon" size={16} />
           <input type="text" placeholder="Search anything..." />
+          <span className="search-hint">⌘K</span>
         </div>
 
         <button 
@@ -41,7 +42,10 @@ export default function Header({ collapsed, onToggle, title }) {
         <div className="header-user">
           <div className="user-avatar">{initials}</div>
           <div className="user-info">
-            <span className="user-name">{user?.first_name} {user?.last_name}</span>
+            <span className="user-name">
+              {user?.first_name} {user?.last_name}
+              <ChevronDown size={14} style={{ marginLeft: 4, opacity: 0.5 }} />
+            </span>
             <span className="user-role">{user?.role_name}</span>
           </div>
         </div>

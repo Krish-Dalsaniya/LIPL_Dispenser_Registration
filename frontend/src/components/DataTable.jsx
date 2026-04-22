@@ -48,22 +48,31 @@ export default function DataTable({
     }
   };
 
-  const getBadgeClass = (val) => {
-    if (!val) return '';
+  const getBadgeClass = (val, colKey) => {
+    if (val === null || val === undefined) return '';
     const v = String(val).toLowerCase();
-    if (v === 'active' || v === 'true' || v === 'confirmed') return 'badge badge-active';
-    if (v === 'inactive' || v === 'false' || v === 'cancelled') return 'badge badge-inactive';
+    
+    if (colKey === 'role_name' || colKey === 'role') {
+      if (v === 'admin') return 'badge badge-admin';
+      if (v === 'engineer') return 'badge badge-engineer';
+      if (v === 'sales') return 'badge badge-sales';
+      if (v === 'technician') return 'badge badge-technician';
+    }
+
+    if (v === 'active' || v === 'true' || v === 'yes' || v === 'confirmed') return 'badge badge-active';
+    if (v === 'inactive' || v === 'false' || v === 'no' || v === 'cancelled') return 'badge badge-inactive';
     if (v === 'pending') return 'badge badge-pending';
     if (v === 'planning') return 'badge badge-planning';
     if (v === 'completed') return 'badge badge-completed';
-    return '';
+    return 'badge';
   };
 
   const formatCell = (col, val) => {
     if (val === null || val === undefined) return '—';
-    if (col.badge) {
-      const cls = getBadgeClass(val);
-      return <span className={cls || 'badge'}>{String(val)}</span>;
+    if (col.badge || col.key === 'role_name' || col.key === 'role' || col.type === 'boolean') {
+      const displayVal = col.type === 'boolean' ? (val ? 'Active' : 'Inactive') : val;
+      const cls = getBadgeClass(val, col.key);
+      return <span className={cls}>{String(displayVal)}</span>;
     }
     if (col.type === 'date') {
       try {
@@ -82,9 +91,7 @@ export default function DataTable({
     if (col.type === 'currency') {
       return `₹${Number(val).toLocaleString('en-IN')}`;
     }
-    if (col.type === 'boolean') {
-      return val ? <span className="badge badge-active">Yes</span> : <span className="badge badge-inactive">No</span>;
-    }
+    // Boolean handled above in badge logic
     return String(val);
   };
 
@@ -143,20 +150,20 @@ export default function DataTable({
                   ))}
                   {(onEdit || onDelete || onView) && (
                     <td>
-                      <div style={{ display: 'flex', gap: 4 }}>
+                      <div style={{ display: 'flex', gap: 8 }}>
                         {onView && (
                           <button className="btn-icon" onClick={() => onView(row)} title="View">
-                            <Eye size={15} />
+                            <Eye size={16} />
                           </button>
                         )}
                         {onEdit && (
                           <button className="btn-icon" onClick={() => onEdit(row)} title="Edit">
-                            <Edit size={15} />
+                            <Edit size={16} />
                           </button>
                         )}
                         {onDelete && (
                           <button className="btn-icon danger" onClick={() => onDelete(row)} title="Delete">
-                            <Trash2 size={15} />
+                            <Trash2 size={16} />
                           </button>
                         )}
                       </div>

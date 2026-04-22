@@ -45,7 +45,7 @@ export default function Dashboard() {
         <div className="stats-grid">
           {[1,2,3,4,5,6].map(i => (
             <div key={i} className="stat-card">
-              <div className="loading-skeleton" style={{ width: 48, height: 48, borderRadius: 10 }} />
+              <div className="loading-skeleton" style={{ width: 44, height: 44, borderRadius: 12 }} />
               <div style={{ flex: 1 }}>
                 <div className="loading-skeleton" style={{ height: 14, width: '60%', marginBottom: 8 }} />
                 <div className="loading-skeleton" style={{ height: 28, width: '40%' }} />
