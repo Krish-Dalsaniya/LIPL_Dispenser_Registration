@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: fuel-erp-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: dispenser_registration_updated
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d # Script to initialize schema
+    ports:
+      - "5434:5432"
+    networks:
+      - erp-network
+
+  backend:
+    build: ./backend
+    container_name: fuel-erp-backend
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=dispenser_registration_updated
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+      - JWT_SECRET=cdcca95b6a67d356d76ffdd6300409589e2baa685bd6fe337bceea3f5bf315b0
+      - JWT_EXPIRES_IN=24h
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - erp-network
+
+  frontend:
+    build: ./frontend
+    container_name: fuel-erp-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - erp-network
+
+networks:
+  erp-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

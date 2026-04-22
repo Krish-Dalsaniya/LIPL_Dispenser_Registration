@@ -1,0 +1,63 @@
+Module,Method,Endpoint,Description,Allowed Roles,Payload / Parameters
+Auth,POST,/api/auth/login,"User login & JWT generation",Public,"{username, password}"
+Auth,POST,/api/auth/register,User registration,Public,"{username, password, first_name, last_name, email, role_id, department, designation}"
+Users,GET,/api/users,List all users,Admin,-
+Users,GET,/api/users/:id,Get user details,Admin,id (URL param)
+Users,POST,/api/users,Create new user,Admin,"{username, password, first_name, last_name, email, role_id, department, designation}"
+Users,PUT,/api/users/:id,Update user information,Admin,"{first_name, last_name, email, role_id, department, designation, is_active}"
+Users,DELETE,/api/users/:id,Deactivate user (soft delete),Admin,id (URL param)
+Roles,GET,/api/roles,List all user roles,Admin,-
+Roles,GET,/api/roles/:id,Get role details and permissions,Admin,id (URL param)
+Roles,POST,/api/roles,Create new user role,Admin,"{role_name, role_description}"
+Roles,PUT,/api/roles/:id,Update role details,Admin,"{role_name, role_description, is_active}"
+Roles,DELETE,/api/roles/:id,Deactivate role,Admin,id (URL param)
+Roles,GET,/api/roles/permissions/all,List all system permissions,Admin,-
+Customers,GET,/api/customers,List all customers,Authenticated,"Query: search (string), status (active|inactive)"
+Customers,GET,/api/customers/:id,Get customer details,Authenticated,id (URL param)
+Customers,POST,/api/customers,Create new customer,"Admin, Sales","{customer_code, customer_name, company_name, contact_person, mobile_no, email, address_line1, city, state, pincode, gst_no}"
+Customers,PUT,/api/customers/:id,Update customer information,"Admin, Sales","{customer_name, contact_person, mobile_no, email, address_line1, city, state, pincode, status}"
+Customers,DELETE,/api/customers/:id,Deactivate customer (soft delete),"Admin, Sales",id (URL param)
+Components,GET,/api/components/types,List all component types (tables),Authenticated,-
+Components,GET,/api/components/:type,List hardware components by type,Authenticated,"type (URL param): motherboard, gsm, pump, flowmeter, etc."
+Components,GET,/api/components/:type/:id,Get component details,Authenticated,"type, id (URL params)"
+Components,POST,/api/components/:type,Add hardware component record,"Admin, Engineer","{production_serial_no, manufacturing_batch, ...type-specific-cols}"
+Components,PUT,/api/components/:type/:id,Update hardware component details,"Admin, Engineer","{...type-specific-cols}"
+Components,DELETE,/api/components/:type/:id,Soft delete hardware component,"Admin, Engineer","type, id (URL params)"
+Dispenser Models,GET,/api/dispenser-models,List all dispenser types,Authenticated,-
+Dispenser Models,GET,/api/dispenser-models/:id,Get model specification,Authenticated,id (URL param)
+Dispenser Models,POST,/api/dispenser-models,Add new dispenser model,"Admin, Engineer","{dispenser_type, fuel_type, model_name}"
+DispenserModels,PUT,/api/dispenser-models/:id,Update model details,"Admin, Engineer","{dispenser_type, fuel_type, model_name}"
+Dispenser Models,DELETE,/api/dispenser-models/:id,Soft delete model,"Admin, Engineer",id (URL param)
+Products,GET,/api/products,List all assembled products,Authenticated,-
+Products,GET,/api/products/:id,Full details (BOM, images, docs, etc),Authenticated,id (URL param)
+Products,POST,/api/products,Register newly assembled product,"Admin, Engineer, Sales","{product_name, dispenser_model_id, motherboard_id, gsm_id, pump_id, solenoid_id, flowmeter_id, nozzle_id, filter_id, smps_id, relay_id, transformer_id, emi_filter_id, printer_id, battery_id, speaker_id, tank_sensor_id, quality_sensor_id, amplifier_id, rccb_id, spd_id, back_panel_id, dc_meter_id, pressure_sensor_id, production_serial_no, manufacturing_date_time, manufacturing_batch}"
+Products,PUT,/api/products/:id,Update product assembly,"Admin, Engineer, Sales","{product_name, product_description, ...allbom-ids}"
+Products,DELETE,/api/products/:id,Delete product assembly record,"Admin, Engineer, Sales",id (URL param)
+Sales,GET,/api/sales,List all sales orders,"Admin, Sales",-
+Sales,GET,/api/sales/:id,Get order details and line items,"Admin, Sales",id (URL param)
+Sales,POST,/api/sales,Create new sales order,"Admin, Sales","{customer_id, site_id, order_date, po_number, remarks, status, items: [{dispenser_model_id, quantity, unit_price}]}"
+Sales,PUT,/api/sales/:id,Update order status or info,"Admin, Sales","{customer_id, site_id, order_date, po_number, remarks, status}"
+Sales,DELETE,/api/sales/:id,Delete sales order,"Admin, Sales",id (URL param)
+Projects,GET,/api/projects,List all ongoing projects,Authenticated,-
+Projects,GET,/api/projects/:id,Full project details and team list,Authenticated,id (URL param)
+Projects,POST,/api/projects,Register new project,"Admin, Sales","{project_name, customer_id, project_type, status, start_date, end_date, description}"
+Projects,PUT,/api/projects/:id,Update project status or dates,"Admin, Sales","{project_name, customer_id, project_type, status, start_date, end_date, description}"
+Projects,DELETE,/api/projects/:id,Delete project record,"Admin, Sales",id (URL param)
+Projects,POST,/api/projects/:id/team,Assign user to project team,"Admin, Sales","{user_id, role_in_project, allocation_percent, start_date, end_date}"
+Devices,GET,/api/devices,List all field-installed devices,"Admin, Technician",-
+Devices,GET,/api/devices/:id,Get field device installation details,"Admin, Technician",id (URL param)
+Devices,POST,/api/devices,Register field installation,"Admin, Technician","{dispenser_id, sale_id, customer_id, model_id, firmware_id, serial_number, project_id, device_uid, iot_sim_no, imei_no, mac_address, installation_date, warranty_start, warranty_end}"
+Devices,PUT,/api/devices/:id,Update installation/warranty details,"Admin, Technician","{dispenser_id, sale_id, customer_id, model_id, firmware_id, serial_number, project_id, device_uid, iot_sim_no, imei_no, mac_address, installation_date, warranty_start, warranty_end}"
+Devices,DELETE,/api/devices/:id,Delete field device registration,"Admin, Technician",id (URL param)
+Dashboard,GET,/api/dashboard/stats,Aggregated ERP statistics (summary),Authenticated,-
+Site Locations,GET,/api/site-locations,List sites for customers,Authenticated,Query: customer_id
+Site Locations,GET,/api/site-locations/:id,Get specific site location,Authenticated,id (URL param)
+Site Locations,POST,/api/site-locations,Add customer installation site,"Admin, Sales","{customer_id, site_name, address_line1, city, state, country, pincode}"
+Site Locations,PUT,/api/site-locations/:id,Update site details,"Admin, Sales","{customer_id, site_name, address_line1, city, state, country, pincode}"
+Site Locations,DELETE,/api/site-locations/:id,Delete site location,"Admin, Sales",id (URL param)
+Support Tickets,GET,/api/support-tickets,List support tickets,Authenticated,"Query: status, customer_id, assigned_to"
+Support Tickets,GET,/api/support-tickets/:id,Get ticket history,Authenticated,id (URL param)
+Support Tickets,POST,/api/support-tickets,Open new support ticket,Authenticated,"{customer_id, device_id, project_id, assigned_to_user_id, subject, issue_category, priority, issue_description}"
+Support Tickets,PUT,/api/support-tickets/:id,Manage ticket status,"Admin, Engineer, Sales, Technician","{status, assigned_to_user_id, issue_description, priority}"
+Chat,GET,/api/chat/ticket/:ticket_id,Load chat thread for a ticket,Authenticated,ticket_id (URL param)
+Chat,POST,/api/chat/ticket/:ticket_id/messages,Post message/internal note to ticket,Authenticated,"{message_text, is_internal_note}"
