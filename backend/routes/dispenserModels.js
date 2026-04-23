@@ -10,7 +10,7 @@ router.use(authenticateToken);
 router.get('/', async (req, res, next) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM dispenser_model_master WHERE is_deleted = false ORDER BY entry_date_time DESC'
+      'SELECT * FROM dispenser_model_master WHERE is_deleted = false ORDER BY series_name ASC, model_name ASC'
     );
     res.json(result.rows);
   } catch (err) {
@@ -35,16 +35,15 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/dispenser-models
 router.post('/', authorizeRoles('Admin', 'Engineer'), async (req, res, next) => {
   try {
-    const { dispenser_type, fuel_type, model_name, is_iot_enabled, nozzle_count, connectivity_type, keyboard_format } = req.body;
+    const { series_name, dispenser_type, fuel_type, model_name, model_description } = req.body;
     const id = uuidv4();
     const result = await pool.query(
       `INSERT INTO dispenser_model_master (
-        dispenser_model_id, dispenser_type, fuel_type, model_name, 
-        is_iot_enabled, nozzle_count, connectivity_type, keyboard_format,
-        entry_done_by, entry_ip_address
+        dispenser_model_id, series_name, dispenser_type, fuel_type, model_name, 
+        model_description, entry_done_by, entry_ip_address
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [id, dispenser_type, fuel_type, model_name, is_iot_enabled || false, nozzle_count || 1, connectivity_type, keyboard_format, req.user.user_id, req.ip]
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [id, series_name, dispenser_type, fuel_type, model_name, model_description, req.user.user_id, req.ip]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -55,13 +54,13 @@ router.post('/', authorizeRoles('Admin', 'Engineer'), async (req, res, next) => 
 // PUT /api/dispenser-models/:id
 router.put('/:id', authorizeRoles('Admin', 'Engineer'), async (req, res, next) => {
   try {
-    const { dispenser_type, fuel_type, model_name, is_iot_enabled, nozzle_count, connectivity_type, keyboard_format } = req.body;
+    const { series_name, dispenser_type, fuel_type, model_name, model_description } = req.body;
     const result = await pool.query(
       `UPDATE dispenser_model_master SET 
-       dispenser_type=$1, fuel_type=$2, model_name=$3, is_iot_enabled=$4, 
-       nozzle_count=$5, connectivity_type=$6, keyboard_format=$7
-       WHERE dispenser_model_id=$8 RETURNING *`,
-      [dispenser_type, fuel_type, model_name, is_iot_enabled, nozzle_count, connectivity_type, keyboard_format, req.params.id]
+       series_name=$1, dispenser_type=$2, fuel_type=$3, model_name=$4, 
+       model_description=$5
+       WHERE dispenser_model_id=$6 RETURNING *`,
+      [series_name, dispenser_type, fuel_type, model_name, model_description, req.params.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Model not found' });
     res.json(result.rows[0]);

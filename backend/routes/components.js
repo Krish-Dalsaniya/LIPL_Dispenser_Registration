@@ -256,8 +256,13 @@ router.get('/:type', authenticateToken, async (req, res, next) => {
     const config = COMPONENT_CONFIG[req.params.type];
     if (!config) return res.status(400).json({ error: `Unknown component type: ${req.params.type}` });
 
-    const cols = config.listColumns.join(', ');
-    const result = await pool.query(`SELECT ${cols} FROM ${config.table} WHERE is_deleted = false ORDER BY entry_date_time DESC`);
+    const result = await pool.query(`
+      SELECT t.*, u.username as entry_by_username 
+      FROM ${config.table} t
+      LEFT JOIN user_master u ON t.entry_done_by = u.user_id
+      WHERE t.is_deleted = false 
+      ORDER BY t.entry_date_time DESC
+    `);
     res.json(result.rows);
   } catch (err) {
     next(err);

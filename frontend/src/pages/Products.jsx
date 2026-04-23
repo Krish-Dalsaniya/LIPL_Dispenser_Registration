@@ -12,7 +12,7 @@ const columns = [
   { key: 'fuel_type', label: 'Fuel' },
   { key: 'production_serial_no', label: 'Serial No' },
   { key: 'manufacturing_batch', label: 'Batch' },
-  { key: 'entry_done_by', label: 'Created By' },
+  { key: 'entry_by_username', label: 'Created By' },
   { key: 'entry_date_time', label: 'Created', type: 'datetime' },
 ];
 
@@ -53,7 +53,6 @@ export default function ProductsPage() {
   const { apiFetch } = useAuth();
   const [data, setData] = useState([]);
   const [models, setModels] = useState([]);
-  const [configurations, setConfigurations] = useState([]);
   const [components, setComponents] = useState({});
   const [modal, setModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
@@ -66,7 +65,6 @@ export default function ProductsPage() {
   useEffect(() => { 
     load(); 
     loadModels();
-    loadConfigurations();
     loadComponents();
   }, []);
 
@@ -84,12 +82,7 @@ export default function ProductsPage() {
     } catch(e) { console.error(e); }
   };
 
-  const loadConfigurations = async () => {
-    try {
-      const res = await apiFetch('/api/dispenser-configurations');
-      if (res.ok) setConfigurations(await res.json());
-    } catch(e) { console.error(e); }
-  };
+
 
   const loadComponents = async () => {
     const types = [...new Set(COMPONENT_FIELDS.map(f => f.type))];
@@ -116,7 +109,7 @@ export default function ProductsPage() {
   };
 
   const openCreate = () => {
-    setForm({ product_name: '', product_description: '', dispenser_model_id: '', configuration_id: '', production_serial_no: '', manufacturing_batch: '' });
+    setForm({ product_name: '', product_description: '', dispenser_model_id: '', production_serial_no: '', manufacturing_batch: '' });
     setError('');
     setEditing(null);
     setActiveFormTab('basic');
@@ -298,15 +291,7 @@ export default function ProductsPage() {
                   {models.map(m => <option key={m.dispenser_model_id} value={m.dispenser_model_id}>{m.model_name}</option>)}
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">IoT Configuration</label>
-                <select className="form-select" value={form.configuration_id || ''} onChange={e => onChange('configuration_id', e.target.value)}>
-                  <option value="">Select Configuration</option>
-                  {configurations.filter(c => !form.dispenser_model_id || c.dispenser_model_id === form.dispenser_model_id).map(c => (
-                    <option key={c.configuration_id} value={c.configuration_id}>{c.config_name}</option>
-                  ))}
-                </select>
-              </div>
+
               <div className="form-group">
                 <label className="form-label">Production Serial No</label>
                 <input className="form-input" placeholder="e.g. SN-DISP-2025-001" value={form.production_serial_no || ''} onChange={e => onChange('production_serial_no', e.target.value)} />

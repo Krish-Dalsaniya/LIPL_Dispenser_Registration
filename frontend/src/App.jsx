@@ -12,7 +12,8 @@ import Users from './pages/Users';
 import Customers from './pages/Customers';
 import Components from './pages/Components';
 import DispenserModels from './pages/DispenserModels';
-import DispenserConfigurations from './pages/DispenserConfigurations';
+import FirmwareVersions from './pages/FirmwareVersions';
+import OTAUpdates from './pages/OTAUpdates';
 import Products from './pages/Products';
 import Sales from './pages/Sales';
 import Projects from './pages/Projects';
@@ -25,7 +26,8 @@ const pageTitles = {
   '/customers': 'Customers',
   '/components': 'Components',
   '/dispenser-models': 'Dispenser Models',
-  '/dispenser-configurations': 'IoT Configurations',
+  '/firmware-versions': 'Firmware Builds',
+  '/ota-updates': 'OTA Updates',
   '/products': 'Products',
   '/sales': 'Sales Orders',
   '/projects': 'Projects',
@@ -100,9 +102,15 @@ function ProtectedLayout() {
               </RoleProtectedRoute>
             } />
             
-            <Route path="/dispenser-configurations" element={
+            <Route path="/firmware-versions" element={
               <RoleProtectedRoute allowedRoles={['Admin', 'Engineer']}>
-                <DispenserConfigurations />
+                <FirmwareVersions />
+              </RoleProtectedRoute>
+            } />
+
+            <Route path="/ota-updates" element={
+              <RoleProtectedRoute allowedRoles={['Admin', 'Engineer']}>
+                <OTAUpdates />
               </RoleProtectedRoute>
             } />
 

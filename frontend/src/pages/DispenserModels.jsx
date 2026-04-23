@@ -5,24 +5,28 @@ import Modal from '../components/Modal';
 import { Plus } from 'lucide-react';
 
 const columns = [
-  { key: 'dispenser_model_id', label: 'ID' },
+  { key: 'series_name', label: 'Series' },
   { key: 'model_name', label: 'Model Name' },
   { key: 'dispenser_type', label: 'Type' },
   { key: 'fuel_type', label: 'Fuel' },
-  { key: 'is_iot_enabled', label: 'IoT', type: 'boolean' },
-  { key: 'nozzle_count', label: 'Nozzles' },
-  { key: 'connectivity_type', label: 'Connectivity' },
   { key: 'entry_date_time', label: 'Created', type: 'datetime' },
 ];
 
 const emptyForm = { 
+  series_name: '',
   model_name: '', 
   dispenser_type: '', 
   fuel_type: '',
-  is_iot_enabled: false,
-  nozzle_count: 1,
-  connectivity_type: '',
-  keyboard_format: ''
+  model_description: ''
+};
+
+const seriesMatrix = {
+  'Nitro':  { type: 'Mini',    fuel: 'DEF' },
+  'Hydro':  { type: 'Mini',    fuel: 'Diesel' },
+  'Oxy':    { type: 'Tower',   fuel: 'DEF' },
+  'Ozone':  { type: 'Tower',   fuel: 'Diesel' },
+  'Titan':  { type: 'Storage', fuel: 'DEF' },
+  'Helium': { type: 'Storage', fuel: 'Diesel' }
 };
 
 export default function DispenserModelsPage() {
@@ -62,7 +66,16 @@ export default function DispenserModelsPage() {
     }
   };
 
-  const onChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
+  const onChange = (key, val) => {
+    setForm(f => {
+      const updated = { ...f, [key]: val };
+      if (key === 'series_name' && seriesMatrix[val]) {
+        updated.dispenser_type = seriesMatrix[val].type;
+        updated.fuel_type = seriesMatrix[val].fuel;
+      }
+      return updated;
+    });
+  };
 
   return (
     <div>
@@ -83,56 +96,28 @@ export default function DispenserModelsPage() {
         </>}
       >
         <div className="form-grid">
-          <div className="form-group full-width">
+          <div className="form-group">
+            <label className="form-label">Series *</label>
+            <select className="form-select" value={form.series_name || ''} onChange={e => onChange('series_name', e.target.value)} required>
+              <option value="">Select Series</option>
+              {Object.keys(seriesMatrix).map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
             <label className="form-label">Model Name *</label>
             <input className="form-input" value={form.model_name || ''} onChange={e => onChange('model_name', e.target.value)} required />
           </div>
           <div className="form-group">
-            <label className="form-label">Dispenser Type</label>
-            <select className="form-select" value={form.dispenser_type || ''} onChange={e => onChange('dispenser_type', e.target.value)}>
-              <option value="">Select Type</option>
-              <option value="Single Nozzle">Single Nozzle</option>
-              <option value="Dual Nozzle">Dual Nozzle</option>
-              <option value="Multi Nozzle">Multi Nozzle</option>
-            </select>
+            <label className="form-label">Dispenser Type (Auto)</label>
+            <input className="form-input" value={form.dispenser_type || ''} readOnly style={{ background: 'rgba(255,255,255,0.05)' }} />
           </div>
           <div className="form-group">
-            <label className="form-label">Fuel Type</label>
-            <select className="form-select" value={form.fuel_type || ''} onChange={e => onChange('fuel_type', e.target.value)}>
-              <option value="">Select Fuel</option>
-              <option value="Petrol">Petrol</option>
-              <option value="Diesel">Diesel</option>
-              <option value="CNG">CNG</option>
-              <option value="LPG">LPG</option>
-              <option value="EV">EV Charging</option>
-            </select>
+            <label className="form-label">Fuel Type (Auto)</label>
+            <input className="form-input" value={form.fuel_type || ''} readOnly style={{ background: 'rgba(255,255,255,0.05)' }} />
           </div>
-          <div className="form-group">
-            <label className="form-label">Nozzle Count</label>
-            <input className="form-input" type="number" min="1" value={form.nozzle_count || 1} onChange={e => onChange('nozzle_count', parseInt(e.target.value))} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Connectivity</label>
-            <select className="form-select" value={form.connectivity_type || ''} onChange={e => onChange('connectivity_type', e.target.value)}>
-              <option value="">Select Connectivity</option>
-              <option value="GSM">GSM</option>
-              <option value="WiFi">WiFi</option>
-              <option value="Ethernet">Ethernet</option>
-              <option value="None">None</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Keyboard Format</label>
-            <select className="form-select" value={form.keyboard_format || ''} onChange={e => onChange('keyboard_format', e.target.value)}>
-              <option value="">Select Format</option>
-              <option value="Numeric">Numeric</option>
-              <option value="Alphanumeric">Alphanumeric</option>
-              <option value="Touchscreen">Touchscreen</option>
-            </select>
-          </div>
-          <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '25px' }}>
-            <input type="checkbox" id="is_iot" checked={form.is_iot_enabled || false} onChange={e => onChange('is_iot_enabled', e.target.checked)} />
-            <label htmlFor="is_iot" className="form-label" style={{ marginBottom: 0 }}>IoT Enabled</label>
+          <div className="form-group full-width">
+            <label className="form-label">Description</label>
+            <textarea className="form-textarea" value={form.model_description || ''} onChange={e => onChange('model_description', e.target.value)} />
           </div>
         </div>
       </Modal>

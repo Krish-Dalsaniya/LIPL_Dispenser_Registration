@@ -10,9 +10,10 @@ router.use(authenticateToken);
 router.get('/', async (req, res, next) => {
   try {
     const result = await pool.query(
-      `SELECT p.*, d.model_name, d.dispenser_type, d.fuel_type
+      `SELECT p.*, d.model_name, d.dispenser_type, d.fuel_type, u.username as entry_by_username
        FROM product_master p
        LEFT JOIN dispenser_model_master d ON p.dispenser_model_id = d.dispenser_model_id
+       LEFT JOIN user_master u ON p.entry_done_by = u.user_id
        ORDER BY p.entry_date_time DESC`
     );
     res.json(result.rows);
@@ -109,14 +110,14 @@ router.post('/', authorizeRoles('Admin', 'Engineer', 'Sales'), async (req, res, 
     } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO product_master (product_id, product_name, product_description, dispenser_model_id, configuration_id, motherboard_id, gsm_id,
+      `INSERT INTO product_master (product_id, product_name, product_description, dispenser_model_id, motherboard_id, gsm_id,
        pump_id, solenoid_valve_id, flowmeter_id, nozzle_id, filter_id, smps_id, relay_box_id,
        transformer_id, emi_emc_filter_id, printer_id, battery_id, speaker_id, tank_sensor_id,
        quality_sensor_id, amplifier_id, rccb_id, spd_id, back_panel_pcb_id, dc_meter_id,
        pressure_sensor_id, production_serial_no, manufacturing_date_time, manufacturing_batch, entry_done_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30)
        RETURNING *`,
-      [id, product_name, product_description, dispenser_model_id || null, req.body.configuration_id || null, motherboard_id || null, gsm_id || null,
+      [id, product_name, product_description, dispenser_model_id || null, motherboard_id || null, gsm_id || null,
        pump_id || null, solenoid_valve_id || null, flowmeter_id || null, nozzle_id || null, filter_id || null, smps_id || null, relay_box_id || null,
        transformer_id || null, emi_emc_filter_id || null, printer_id || null, battery_id || null, speaker_id || null, tank_sensor_id || null,
        quality_sensor_id || null, amplifier_id || null, rccb_id || null, spd_id || null, back_panel_pcb_id || null, dc_meter_id || null,
@@ -140,13 +141,13 @@ router.put('/:id', authorizeRoles('Admin', 'Engineer', 'Sales'), async (req, res
     } = req.body;
 
     const result = await pool.query(
-      `UPDATE product_master SET product_name=$1, product_description=$2, dispenser_model_id=$3, configuration_id=$4, motherboard_id=$5, gsm_id=$6,
-       pump_id=$7, solenoid_valve_id=$8, flowmeter_id=$9, nozzle_id=$10, filter_id=$11, smps_id=$12, relay_box_id=$13,
-       transformer_id=$14, emi_emc_filter_id=$15, printer_id=$16, battery_id=$17, speaker_id=$18, tank_sensor_id=$19,
-       quality_sensor_id=$20, amplifier_id=$21, rccb_id=$22, spd_id=$23, back_panel_pcb_id=$24, dc_meter_id=$25,
-       pressure_sensor_id=$26, production_serial_no=$27, manufacturing_date_time=$28, manufacturing_batch=$29
-       WHERE product_id=$30 RETURNING *`,
-      [product_name, product_description, dispenser_model_id || null, req.body.configuration_id || null, motherboard_id || null, gsm_id || null,
+      `UPDATE product_master SET product_name=$1, product_description=$2, dispenser_model_id=$3, motherboard_id=$4, gsm_id=$5,
+       pump_id=$6, solenoid_valve_id=$7, flowmeter_id=$8, nozzle_id=$9, filter_id=$10, smps_id=$11, relay_box_id=$12,
+       transformer_id=$13, emi_emc_filter_id=$14, printer_id=$15, battery_id=$16, speaker_id=$17, tank_sensor_id=$18,
+       quality_sensor_id=$19, amplifier_id=$20, rccb_id=$21, spd_id=$22, back_panel_pcb_id=$23, dc_meter_id=$24,
+       pressure_sensor_id=$25, production_serial_no=$26, manufacturing_date_time=$27, manufacturing_batch=$28
+       WHERE product_id=$29 RETURNING *`,
+      [product_name, product_description, dispenser_model_id || null, motherboard_id || null, gsm_id || null,
        pump_id || null, solenoid_valve_id || null, flowmeter_id || null, nozzle_id || null, filter_id || null, smps_id || null, relay_box_id || null,
        transformer_id || null, emi_emc_filter_id || null, printer_id || null, battery_id || null, speaker_id || null, tank_sensor_id || null,
        quality_sensor_id || null, amplifier_id || null, rccb_id || null, spd_id || null, back_panel_pcb_id || null, dc_meter_id || null,

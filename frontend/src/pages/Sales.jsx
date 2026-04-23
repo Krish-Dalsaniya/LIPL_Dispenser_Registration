@@ -63,7 +63,14 @@ export default function SalesPage() {
     setForm({ 
       customer_id: '', order_date: '', po_number: '', remarks: '', status: 'pending', 
       total_amount: 0, tax_amount: 0, discount_amount: 0, 
-      items: [{ product_id: '', quantity: 1, unit_price: '' }] 
+      items: [{ 
+        product_id: '', quantity: 1, unit_price: '', 
+        is_iot_order: false, 
+        iot_config: { 
+          nozzle_count: 1, dispensing_speed: 21, keyboard_format: '4x6', config_notes: '',
+          connectivity: { ethernet: true, wifi: false, gsm_4g: true, gps: true } 
+        } 
+      }] 
     });
     setError('');
     setEditing(null);
@@ -101,7 +108,30 @@ export default function SalesPage() {
   };
 
   const addItem = () => {
-    setForm(f => ({ ...f, items: [...(f.items || []), { product_id: '', quantity: 1, unit_price: '' }] }));
+    setForm(f => ({ 
+      ...f, 
+      items: [...(f.items || []), { 
+        product_id: '', quantity: 1, unit_price: '', 
+        is_iot_order: false, 
+        iot_config: { 
+          nozzle_count: 1, dispensing_speed: 21, keyboard_format: '4x6', config_notes: '',
+          connectivity: { ethernet: true, wifi: false, gsm_4g: true, gps: true } 
+        } 
+      }] 
+    }));
+  };
+
+  const updateIoTConfig = (idx, key, val) => {
+    const items = [...(form.items || [])];
+    items[idx] = { ...items[idx], iot_config: { ...items[idx].iot_config, [key]: val } };
+    setForm(f => ({ ...f, items }));
+  };
+
+  const updateConnectivity = (idx, key, val) => {
+    const items = [...(form.items || [])];
+    const connectivity = { ...items[idx].iot_config.connectivity, [key]: val };
+    items[idx] = { ...items[idx], iot_config: { ...items[idx].iot_config, connectivity } };
+    setForm(f => ({ ...f, items }));
   };
 
   return (
@@ -217,22 +247,68 @@ export default function SalesPage() {
               <button className="btn btn-secondary btn-sm" onClick={addItem}><Plus size={14} /> Add Item</button>
             </div>
             {(form.items || []).map((item, idx) => (
-              <div key={idx} className="form-grid" style={{ marginBottom: 10, padding: 12, background: 'rgba(255,255,255,0.02)', borderRadius: 8 }}>
-                <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                  <label className="form-label">Product Assembly</label>
-                  <select className="form-select" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)}>
-                    <option value="">Select Assembly</option>
-                    {products.map(p => <option key={p.product_id} value={p.product_id}>{p.product_name} ({p.production_serial_no})</option>)}
-                  </select>
+              <div key={idx} style={{ marginBottom: 20, padding: 16, background: 'rgba(255,255,255,0.02)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
+                <div className="form-grid" style={{ marginBottom: 12 }}>
+                  <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                    <label className="form-label">Product Assembly</label>
+                    <select className="form-select" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)}>
+                      <option value="">Select Assembly</option>
+                      {products.map(p => <option key={p.product_id} value={p.product_id}>{p.product_name} ({p.production_serial_no})</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Qty</label>
+                    <input className="form-input" type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseInt(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Unit Price (₹)</label>
+                    <input className="form-input" type="number" value={item.unit_price} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Qty</label>
-                  <input className="form-input" type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseInt(e.target.value))} />
+
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 12 }}>
+                  <input type="checkbox" id={`iot_${idx}`} checked={item.is_iot_order} onChange={e => updateItem(idx, 'is_iot_order', e.target.checked)} />
+                  <label htmlFor={`iot_${idx}`} className="form-label" style={{ marginBottom: 0 }}>IoT Configured Dispenser</label>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Unit Price (₹)</label>
-                  <input className="form-input" type="number" value={item.unit_price} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
-                </div>
+
+                {item.is_iot_order && (
+                  <div style={{ padding: 16, background: 'rgba(0,123,255,0.05)', borderRadius: 8, border: '1px dashed var(--accent-blue)' }}>
+                    <h5 style={{ fontSize: '0.8rem', color: 'var(--accent-blue-light)', marginBottom: 12, textTransform: 'uppercase' }}>IoT Feature Selection</h5>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label className="form-label">Nozzles</label>
+                        <select className="form-select" value={item.iot_config.nozzle_count} onChange={e => updateIoTConfig(idx, 'nozzle_count', parseInt(e.target.value))}>
+                          {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n} Nozzle</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Speed (L/min)</label>
+                        <select className="form-select" value={item.iot_config.dispensing_speed} onChange={e => updateIoTConfig(idx, 'dispensing_speed', parseInt(e.target.value))}>
+                          <option value={4}>4 (Standard)</option>
+                          <option value={21}>21 (High Speed)</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Keyboard</label>
+                        <select className="form-select" value={item.iot_config.keyboard_format} onChange={e => updateIoTConfig(idx, 'keyboard_format', e.target.value)}>
+                          <option value="4x6">4x6 Format</option>
+                          <option value="5x5">5x5 Format</option>
+                        </select>
+                      </div>
+                      <div className="form-group full-width">
+                        <label className="form-label">Connectivity Options</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                          {['ethernet', 'wifi', 'bluetooth', 'modbus_rs485', 'gsm_2g', 'gsm_4g', 'gps'].map(c => (
+                            <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>
+                              <input type="checkbox" checked={item.iot_config.connectivity[c]} onChange={e => updateConnectivity(idx, c, e.target.checked)} />
+                              {c.replace('_', ' ').toUpperCase()}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

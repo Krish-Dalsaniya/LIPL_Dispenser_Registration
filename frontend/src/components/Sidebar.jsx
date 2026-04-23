@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Users, Building2, Cpu, Box, ShoppingCart,
   FolderKanban, Router, ChevronLeft, ChevronRight, Fuel, Settings2,
-  MapPin, LifeBuoy, LogOut, Settings
+  MapPin, LifeBuoy, LogOut, Settings, Layers, Zap
 } from 'lucide-react';
 
 const ALL_ROLES = ['Admin', 'Engineer', 'Sales', 'Technician'];
@@ -18,8 +18,11 @@ const navItems = [
   { path: '/site-locations', label: 'Site Locations', icon: MapPin, roles: ['Admin', 'Sales'] },
   { path: '/components', label: 'Components', icon: Cpu, roles: ['Admin', 'Engineer'] },
   { path: '/dispenser-models', label: 'Dispenser Models', icon: Fuel, roles: ['Admin', 'Engineer'] },
-  { path: '/dispenser-configurations', label: 'IoT Configurations', icon: Settings2, roles: ['Admin', 'Engineer'] },
   { path: '/products', label: 'Products', icon: Box, roles: ['Admin', 'Engineer', 'Sales'] },
+  
+  { section: 'Firmware & OTA', roles: ['Admin', 'Engineer'] },
+  { path: '/firmware-versions', label: 'Firmware Builds', icon: Layers, roles: ['Admin', 'Engineer'] },
+  { path: '/ota-updates', label: 'OTA Updates', icon: Zap, roles: ['Admin', 'Engineer'] },
   
   { section: 'Operations', roles: ALL_ROLES },
   { path: '/sales', label: 'Sales Orders', icon: ShoppingCart, roles: ['Admin', 'Sales'] },

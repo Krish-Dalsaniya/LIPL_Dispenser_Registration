@@ -37,11 +37,10 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
 
     const items = await pool.query(
       `SELECT si.*,
-              COALESCE(si.product_id, si.dispenser_model_id) as effective_product_id,
               p.product_name, dm.model_name, dm.dispenser_type, dm.fuel_type
        FROM sales_order_items si
-       LEFT JOIN product_master p ON (si.product_id = p.product_id OR si.dispenser_model_id = p.product_id)
-       LEFT JOIN dispenser_model_master dm ON (p.dispenser_model_id = dm.dispenser_model_id OR si.dispenser_model_id = dm.dispenser_model_id)
+       LEFT JOIN product_master p ON si.product_id = p.product_id
+       LEFT JOIN dispenser_model_master dm ON p.dispenser_model_id = dm.dispenser_model_id
        WHERE si.sales_id = $1`,
       [req.params.id]
     );
@@ -54,32 +53,94 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
 
 // POST /api/sales
 router.post('/', authenticateToken, async (req, res, next) => {
+  const client = await pool.connect();
   try {
     const { customer_id, site_id, order_date, po_number, remarks, status, items, total_amount, tax_amount, discount_amount } = req.body;
     const sales_id = uuidv4();
 
-    await pool.query(
+    await client.query('BEGIN');
+
+    await client.query(
       `INSERT INTO sales_order (sales_id, customer_id, site_id, order_date, po_number, remarks, status, total_amount, tax_amount, discount_amount, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-      [sales_id, customer_id, site_id, order_date, po_number, remarks, status || 'pending', total_amount || 0, tax_amount || 0, discount_amount || 0, req.user.user_id]
+      [
+        sales_id, customer_id, site_id, order_date, po_number, remarks, status || 'pending', 
+        Number(total_amount) || 0, Number(tax_amount) || 0, Number(discount_amount) || 0, req.user.user_id
+      ]
     );
 
     // Insert line items
     if (items && items.length > 0) {
       for (const item of items) {
         const item_id = uuidv4();
-        await pool.query(
-          `INSERT INTO sales_order_items (item_id, sales_id, product_id, quantity, unit_price)
-           VALUES ($1,$2,$3,$4,$5)`,
-          [item_id, sales_id, item.product_id, item.quantity, item.unit_price]
+        let customer_iot_config_id = null;
+
+        if (item.is_iot_order && item.iot_config) {
+          customer_iot_config_id = uuidv4();
+          const { nozzle_count, dispensing_speed, connectivity, keyboard_format, config_notes } = item.iot_config;
+          
+          // Create IoT Config
+          await client.query(
+            `INSERT INTO customer_order_iot_config (
+              config_id, sales_id, product_id, nozzle_count, dispensing_speed,
+              conn_ethernet, conn_wifi, conn_bluetooth, conn_modbus_rs485, 
+              conn_gsm_2g, conn_gsm_4g, conn_gps, keyboard_format, 
+              config_notes, configured_by
+            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+            [
+              customer_iot_config_id, sales_id, item.product_id, Number(nozzle_count) || 1, Number(dispensing_speed) || 4,
+              connectivity.ethernet || false, connectivity.wifi || false, connectivity.bluetooth || false, 
+              connectivity.modbus_rs485 || false, connectivity.gsm_2g || false, connectivity.gsm_4g || false, 
+              connectivity.gps || false, keyboard_format, config_notes, req.user.user_id
+            ]
+          );
+
+          // Generate Firmware Version
+          const fw_id = uuidv4();
+          // Version string logic: MODEL-NZ-SPD-CONN-KBD-v1.0.0
+          const connStr = Object.keys(connectivity || {}).filter(k => connectivity[k]).map(k => k.toUpperCase()).join('-') || 'NONE';
+          const version_string = `IOT-${nozzle_count}NZ-${dispensing_speed}L-${connStr}-${keyboard_format}-v1.0.0-${fw_id.substring(0,8)}`;
+          
+          await client.query(
+            `INSERT INTO firmware_version_master (
+              firmware_version_id, iot_config_id, version_string, nozzle_count, dispensing_speed,
+              conn_ethernet, conn_wifi, conn_bluetooth, conn_modbus_rs485, 
+              conn_gsm_2g, conn_gsm_4g, conn_gps, keyboard_format, created_by
+            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+            [
+              fw_id, customer_iot_config_id, version_string, Number(nozzle_count) || 1, Number(dispensing_speed) || 4,
+              connectivity.ethernet || false, connectivity.wifi || false, connectivity.bluetooth || false, 
+              connectivity.modbus_rs485 || false, connectivity.gsm_2g || false, connectivity.gsm_4g || false, 
+              connectivity.gps || false, keyboard_format, req.user.user_id
+            ]
+          );
+
+          // Update IoT Config with Firmware Version link
+          await client.query(
+            `UPDATE customer_order_iot_config SET firmware_version_id = $1 WHERE config_id = $2`,
+            [fw_id, customer_iot_config_id]
+          );
+        }
+
+        await client.query(
+          `INSERT INTO sales_order_items (item_id, sales_id, product_id, quantity, unit_price, is_iot_order, customer_iot_config_id)
+           VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+          [
+            item_id, sales_id, item.product_id, Number(item.quantity) || 0, 
+            Number(item.unit_price) || 0, item.is_iot_order || false, customer_iot_config_id
+          ]
         );
       }
     }
 
-    const result = await pool.query('SELECT * FROM sales_order WHERE sales_id = $1', [sales_id]);
+    await client.query('COMMIT');
+    const result = await client.query('SELECT * FROM sales_order WHERE sales_id = $1', [sales_id]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    await client.query('ROLLBACK');
     next(err);
+  } finally {
+    client.release();
   }
 });
 

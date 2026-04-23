@@ -11,8 +11,11 @@ const userRoutes = require('./routes/users');
 const roleRoutes = require('./routes/roles');
 const customerRoutes = require('./routes/customers');
 const componentRoutes = require('./routes/components');
-const dispenserModelRoutes = require('./routes/dispenserModels');
-const productRoutes = require('./routes/products');
+const dispenserModelsRoutes = require('./routes/dispenserModels');
+const dispenserConfigurationsRoutes = require('./routes/dispenserConfigurations');
+const firmwareVersionsRoutes = require('./routes/firmwareVersions');
+const otaUpdatesRoutes = require('./routes/otaUpdates');
+const productsRoutes = require('./routes/products');
 const salesRoutes = require('./routes/sales');
 const projectRoutes = require('./routes/projects');
 const deviceRoutes = require('./routes/devices');
@@ -20,7 +23,6 @@ const dashboardRoutes = require('./routes/dashboard');
 const siteLocationRoutes = require('./routes/siteLocations');
 const supportTicketRoutes = require('./routes/supportTickets');
 const chatRoutes = require('./routes/chat');
-const dispenserConfigRoutes = require('./routes/dispenserConfigurations');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,8 +46,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/components', componentRoutes);
-app.use('/api/dispenser-models', dispenserModelRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/dispenser-models', dispenserModelsRoutes);
+app.use('/api/dispenser-configurations', dispenserConfigurationsRoutes);
+app.use('/api/firmware-versions', firmwareVersionsRoutes);
+app.use('/api/ota-updates', otaUpdatesRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/devices', deviceRoutes);
@@ -53,7 +58,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/site-locations', siteLocationRoutes);
 app.use('/api/support-tickets', supportTicketRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/dispenser-configurations', dispenserConfigRoutes);
+
 
 // Error Handler (must be last)
 app.use(errorHandler);
