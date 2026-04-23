@@ -31,8 +31,6 @@ const COMPONENT_TYPES = [
       { key: 'production_serial_no', label: 'Production Serial No' },
       { key: 'manufacturing_date_time', label: 'Manufacturing Date', type: 'datetime-local' },
       { key: 'manufacturing_batch', label: 'Manufacturing Batch' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -49,8 +47,6 @@ const COMPONENT_TYPES = [
       { key: 'tech_name', label: 'Technology Name', required: true },
       { key: 'tech_description', label: 'Description' },
       { key: 'frequency_band', label: 'Frequency Band' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -72,8 +68,6 @@ const COMPONENT_TYPES = [
       { key: 'production_serial_no', label: 'Serial No' },
       { key: 'manufacturing_date_time', label: 'Manufacturing Date', type: 'datetime-local' },
       { key: 'manufacturing_batch', label: 'Batch' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -93,8 +87,6 @@ const COMPONENT_TYPES = [
       { key: 'firmware_description', label: 'Description' },
       { key: 'file_name', label: 'File Name' },
       { key: 'checksum', label: 'Checksum' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -111,8 +103,6 @@ const COMPONENT_TYPES = [
       { key: 'motherboard_id', label: 'Motherboard ID' },
       { key: 'version_no', label: 'Version No' },
       { key: 'firmware_description', label: 'Description' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -129,8 +119,6 @@ const COMPONENT_TYPES = [
       { key: 'version_no', label: 'Version No' },
       { key: 'feature_name', label: 'Feature Name' },
       { key: 'feature_description', label: 'Description', type: 'textarea' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -147,8 +135,6 @@ const COMPONENT_TYPES = [
       { key: 'pump_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -165,8 +151,6 @@ const COMPONENT_TYPES = [
       { key: 'solenoid_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -183,8 +167,6 @@ const COMPONENT_TYPES = [
       { key: 'flowmeter_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -203,8 +185,6 @@ const COMPONENT_TYPES = [
       { key: 'firmware_description', label: 'Description' },
       { key: 'file_name', label: 'File Name' },
       { key: 'checksum', label: 'Checksum' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -221,8 +201,6 @@ const COMPONENT_TYPES = [
       { key: 'nozzle_serial_no', label: 'Serial No' },
       { key: 'nozzle_type', label: 'Nozzle Type' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -241,8 +219,6 @@ const COMPONENT_TYPES = [
       { key: 'filter_type', label: 'Filter Type' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -259,8 +235,6 @@ const COMPONENT_TYPES = [
       { key: 'smps_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -277,8 +251,6 @@ const COMPONENT_TYPES = [
       { key: 'relay_box_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -297,8 +269,6 @@ const COMPONENT_TYPES = [
       { key: 'input_voltage', label: 'Input Voltage' },
       { key: 'output_voltage', label: 'Output Voltage' },
       { key: 'rating', label: 'Rating' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -317,8 +287,6 @@ const COMPONENT_TYPES = [
       { key: 'rating', label: 'Rating' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -337,8 +305,6 @@ const COMPONENT_TYPES = [
       { key: 'printer_type', label: 'Printer Type' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -357,8 +323,6 @@ const COMPONENT_TYPES = [
       { key: 'firmware_description', label: 'Description' },
       { key: 'file_name', label: 'File Name' },
       { key: 'checksum', label: 'Checksum' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -377,8 +341,6 @@ const COMPONENT_TYPES = [
       { key: 'battery_type', label: 'Battery Type' },
       { key: 'capacity', label: 'Capacity' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -395,8 +357,6 @@ const COMPONENT_TYPES = [
       { key: 'speaker_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -413,8 +373,6 @@ const COMPONENT_TYPES = [
       { key: 'amplifier_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -431,8 +389,6 @@ const COMPONENT_TYPES = [
       { key: 'tank_sensor_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -451,8 +407,6 @@ const COMPONENT_TYPES = [
       { key: 'firmware_description', label: 'Description' },
       { key: 'file_name', label: 'File Name' },
       { key: 'checksum', label: 'Checksum' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -469,8 +423,6 @@ const COMPONENT_TYPES = [
       { key: 'quality_sensor_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -487,8 +439,6 @@ const COMPONENT_TYPES = [
       { key: 'rccb_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -505,8 +455,6 @@ const COMPONENT_TYPES = [
       { key: 'spd_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -523,8 +471,6 @@ const COMPONENT_TYPES = [
       { key: 'pcb_serial_no', label: 'Serial No' },
       { key: 'pcb_version', label: 'PCB Version' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -539,8 +485,6 @@ const COMPONENT_TYPES = [
     formFields: [
       { key: 'dc_motor_serial_no', label: 'Serial No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
   {
@@ -557,8 +501,6 @@ const COMPONENT_TYPES = [
       { key: 'pressure_sensor_serial_no', label: 'Serial No' },
       { key: 'model_no', label: 'Model No' },
       { key: 'manufacturer', label: 'Manufacturer' },
-      { key: 'entry_by_username', label: 'Created By' },
-      { key: 'entry_date_time', label: 'Created', type: 'datetime' },
     ],
   },
 ];
